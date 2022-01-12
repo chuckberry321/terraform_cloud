@@ -15,7 +15,6 @@ resource "aws_instance" "ubuntu_server" {
   ami           = data.aws_ami.ubuntu_latest.id
   instance_type = "t3.micro"
   monitoring    = true
-  count = local.ubuntu_instance_count_map[terraform.workspace]
 
   tags = {
     Name = "Ubuntu server"
@@ -47,21 +46,3 @@ resource "aws_network_interface" "net" {
     Name = "primary_network_interface"
   }
 }
-
-locals {
-  ubuntu_instance_count_map = {
-    stage = 1
-    prod  = 2
-  }
-}
-
-resource "aws_instance" "ubuntu_servers_for_each" {
-  for_each = { for option in var.instance_options : option.instance_count => option }
-  ami = data.aws_ami.ubuntu_latest.id 
-  instance_type = "each.key.instance_type"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
